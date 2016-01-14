@@ -8,6 +8,7 @@ import Boat
 from BoatConstant import BoatConstant
 import Erg_pb2
 
+PUBADDRESS = "tcp://127.0.0.1:21744"
 envelope = "EasyErgsocket"
 maxFPS = 60
 randomId = random.getrandbits(128)
@@ -17,7 +18,8 @@ def main():
     #Socket to publish boat-data
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
-    socket.bind("tcp://*:5556")
+    socket.connect(PUBADDRESS)
+    print "Connected to " + PUBADDRESS
 
     botBoat = BoatConstant("Bot1")
     
@@ -47,22 +49,3 @@ def main():
 
 if __name__=="__main__":
     main()
-    
-    
-    
-    
-
-
-
-#Subscribe to the right envelope
-# Ascii bytes to unicode str is needed here
-if isinstance(envelope, bytes):
-    envelope = envelope.decode('ascii')
-socket.setsockopt_string(zmq.SUBSCRIBE, envelope)
-
-while True:
-    currentMessage = socket.recv_multipart()
-    erg = Erg_pb2.Erg()
-    erg.ParseFromString(currentMessage[1])
-    print erg.displayedMeters
-
